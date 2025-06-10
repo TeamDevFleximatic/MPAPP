@@ -1,0 +1,19 @@
+{
+    "name": "#Surtido MP",
+    "short_name": "#Surtido MP",
+    "description": "Bienvenido a Surtido MP",
+    "background_color": "#0093E9",
+    "theme_color": "#80D0C7",
+    "orientation": "portrait",
+    "display": "standalone",
+    "start_url": "./?utm_source=web_app_manifest",
+    "scope": "./",
+    "lang": "es-MX",
+    "icons": [
+        {
+            "src": "./images/logo_max.png",
+            "sizes": "1200x1200",
+            "type": "image/png"
+            }
+    ]
+}  

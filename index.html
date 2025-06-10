@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Asistido MP</title>
+    <style>
+      
+    </style>
+    <meta charset="UTF-8">
+    <meta content='width=device-width, initial-scale=1' name='viewport'>
+    <link rel='stylesheet' type='text/css' href='plugins/bootstrap-4.6.2/css/bootstrap.css'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel='stylesheet' href='plugins/font-awesome/css/font-awesome.css'>
+    <link rel="stylesheet" href="./css/estilos.css">
+    <link rel='stylesheet' href='plugins/toastr/build/toastr.min.css'>
+    <link rel='stylesheet' href='plugins/Datatables/DataTable.css'>
+    <script src='./plugins/jQuery/jquery-2.2.3.min.js'></script>
+    <script src='./plugins/toastr/build/toastr.min.js'></script>
+    <link rel='manifest' href='manifest.json'>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src='./Js/funciones.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/6c19e1b3b3.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="http://localhost:9100/BrowserPrint-2.0.2.min.js"></script>
+  </head>
+  <body style="background-color: #d0d5d9;">
+    <main>
+      <section class="scaner">
+        <div class="scaner__container--form" id='container_all'>
+          <div style="display: flex; flex-direction: column;  align-items: center; height: 100vh;">
+            
+            <img src="images/logo_max.png" style="max-width: 90%; height: auto; max-height: px;" alt="Docker Image">
+            
+            <input type="text" id="UserName" class="form-control"  placeholder="Ingresa tu usuario"   style="margin-top: 20px; padding: 10px; width: 100%; max-width: 210px;"> 
+            
+            <input type="password" id="Password" class="form-control"  placeholder="Ingresa tu contraseña"   style="margin-top: 20px; padding: 10px; width: 100%; max-width: 210px;">
+            <br>
+            <button type="button" class="btn btn-success"  style="margin-top: 20px; padding: 10px; width: 80%; max-width: 160px;" onclick="logueo();" >Ingresar</button>
+
+          </div>
+           <!-- Spinner de carga oculto por defecto -->
+          <div id="overlay" class="overlay text-center" style="display: none">
+            <div class="spinner"></div>
+            <br />
+          </div>
+        </div>
+      </section>
+    </main>
+    <audio id='success'>
+      <source src='./sounds/success.mp3' type='audio/mpeg'>
+    </audio>
+    <audio id='info'>
+      <source src='./sounds/info.mp3' type='audio/mpeg'>
+    </audio>
+    <audio id='error'>
+      <source src='./sounds/error.mp3' type='audio/mpeg'>
+    </audio>
+    <script src='./Js/funciones.js'></script>
+  </body>
+</html>
+
+<script>
+ 
+  $(() => {
+    
+  });
+  function logueo() {
+    let sonido_success = document.getElementById("success");
+    let sonido_info = document.getElementById("info");
+    let sonido_error = document.getElementById("error");
+    let usuario = $('#UserName').val();
+    let contra  = $('#Password').val();
+    $.ajax({
+        url: 'https://flexinet.fleximatic.com.mx/encryptor_new.php', // sin params todavía
+        method: 'GET',
+        data: { 
+            id: contra  // aquí mandas el parámetro id separado
+        },
+        success: function(response) {
+         // debugger
+          $.ajax({
+            url: 'proxy.php?url=' + encodeURIComponent('http://192.168.10.3:8097/Api/LoginInternalUsers/v1/Login-Users-AD'),
+            //url: 'http://192.168.10.3:8097/Api/LoginInternalUsers/v1/Login-Users-AD',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+              nombre: usuario,
+              password: response
+            }),
+            success: function (response) {
+              //debugger
+              if(response[0].message == 'OK'){
+                $.ajax({
+                      url: 'proxy.php?url=' + encodeURIComponent(`http://192.168.10.3:7293/api/v1/permission/Userlogin?nombreUsuario=${response[0].login}&sistema=samp`),
+                      //url: `http://192.168.10.3:7293/api/v1/permission/Userlogin`,
+                      //url: `http://192.168.10.139:8085/api/v1/permission/Userlogin?nombreUsuario=${UserName}&sistema=flexidocker`,
+                      method: "GET",
+                      // data: { 
+                      //   nombreUsuario: response[0].login,
+                      //   sistema:"samp"
+                      //     // aquí mandas el parámetro id separado
+                      // },
+                      success: function (respuesta) {
+                        //debugger
+                        let permiso = respuesta[0];
+                        if (permiso == "4092") {
+                          sonido_success.play();
+                          document.getElementById("overlay").style.display = "flex";
+                          Command: toastr["success"]("Bienvenido!", "#FlexiTransfer");
+                          sessionStorage.setItem("usuario", response[0].login);
+                          setTimeout(function () {
+                            window.location.href = "./modulos/pages/menus.html";
+                          }, 1000);
+                          document.getElementById("UserName").value = "";
+                        } else {
+                          sonido_error.play();
+                          Command: toastr["warning"](
+                            "No cuentas con permisos!!",
+                            "#FlexiTransfer"
+                          );
+                          document.getElementById("UserName").value = "";
+                          document.getElementById("Password").value = "";
+                        }
+                      },
+                    });
+              }else{
+                sonido_error.play();
+                Command: toastr["warning"](
+                  "Contraseña o usuario incorrecto!!",
+                  "#SURTIDO MP"
+                );
+              }
+            }
+          });
+        
+        },
+        error: function(xhr, status, error) {
+            console.error('Error en la API:', error);
+    }
+});
+  }
+</script>
