@@ -11,7 +11,7 @@ $titulo = $_POST['titulo'] ?? '';
         <h4 id="titulo"></h4>
     </div>
     <div class="container mt-4 text-center">
-        <button type="button" class="btn btn-info" id="btnCrear"><i class="fa-solid fa-qrcode"></i> <?php echo $titulo ?></button>
+        <button type="button" class="btn btn-info" id="btnCrear"><i class="fa-solid fa-qrcode"></i> Crear Etiqueta Multiple</button>
     </div>
     <div id="contenedorFolio" class="mt-3"></div>
     <div id="table-detalle" class="mt-3"></div>
@@ -174,6 +174,9 @@ function activarEnterSolo() {
         type: 'POST',
         contentType: 'application/json',
         data: Json,
+        beforeSend:function(){
+            document.getElementById("overlay").style.display = "flex";
+        },
         success: function(response) {
             //debugger 
             if (response[0].mensaje == 'OK') {
@@ -191,6 +194,7 @@ function activarEnterSolo() {
             complete: function () {
              $('#piezas').modal('hide');
              get_tabla(Etiq_multiple)
+             document.getElementById("overlay").style.display = "none";
         },
     });
 };
@@ -207,16 +211,17 @@ function get_tabla(Etiq_multiple){
        
         success: function(response) {
             //debugger 
+            let div = document.getElementById("table-detalle");
+
+            // Limpiar contenido previo
+            div.innerHTML = "";
             if (response[0].mensaje == 'OK') {
                 let id_etiqueta1 = response[0].id_etiqueta;
                 let id_etiqueta = id_etiqueta1.slice(-6);
                 let cod_articulo = response[0].cod_articulo;
                 let cantidad = response[0].cantidad;
               
-            let div = document.getElementById("table-detalle");
-
-            // Limpiar contenido previo
-            div.innerHTML = "";
+            
 
             // Crear contenedor responsivo
             let contenedor = document.createElement("div");
@@ -270,6 +275,7 @@ function get_tabla(Etiq_multiple){
                 let flag = false;
                 var datos = {Etiq_multiple:Etiq_multiple};
                 var Json = JSON.stringify(datos);
+                let confirmar = confirm("¿Estas seguro de cerrar esta caja?");
                 $.ajax({
                     //url: '/MPAPP/proxy.php?url=' + encodeURIComponent('http://192.168.10.139:8086/api/SurtidoMP/SurtidoMP/v1/CrearSolicitudTraslado?Accion=crear_sol_traslado'),
                     url: 'https://localhost:7191/api/SurtidoMP/SurtidoMP/v1/PICKING_MP?Accion=Cerrar_caja',
@@ -294,24 +300,28 @@ function get_tabla(Etiq_multiple){
                     },
                     complete: function () {
                         if (flag){
-                           document.getElementById("overlay").style.display = "flex";
+                           //
                             $.ajax({
-                                url: "modulos/pages/menu.html",
+                                url: "/MPAPP/modulos/etiqueta_multiple/index.php",
                                 type: "post",
                                 data: {},
-                                success: function (response) {
-                                $("#all_page").html(response);
-                                Permisos_menu();
+                                 beforeSend:function(){
+                                document.getElementById("overlay").style.display = "flex";
                                 },
-                                error: function () {
-                                console.error("Ocurrió un error al cargar el contenido.");
+                                success: function (response) {
+                                    $("#contenido").html(response);
+                                    //Permisos_menu();
+                                },
+                                    error: function () {
+                                    console.error("Ocurrió un error al cargar el contenido.");
                                 },
                                 complete: function () {
                                 // Se ejecuta tanto si es success como si es error
                                 // Oculta el spinner
-                                document.getElementById("overlay").style.display = "none";
+                               document.getElementById("overlay").style.display = "none";
                                 },
                             });
+                            
                         }
                     },
                 });
@@ -348,12 +358,14 @@ function eliminar(recno,cantidad,id_etiqueta) {
             type: 'POST',
             contentType: 'application/json',
             data: Json,
+            beforeSend:function(){
+                document.getElementById("overlay").style.display = "flex";
+            },
             success: function(response) {
-                debugger 
+                //debugger 
                 if (response[0].mensaje == 'OK') {
                     sonido_success.play();
                     Command: toastr["success"]("Etiqueta Eliminada!", "#App Surtido");
-                    get_tabla(Etiq_multiple)
                 }else{
                     sonido_error.play();
                     Command: toastr["warning"](response[0]?.mensaje || 'Respuesta no válida', 'Mi Fleximatic');
@@ -363,6 +375,8 @@ function eliminar(recno,cantidad,id_etiqueta) {
                 console.error("Ocurrió un error al cargar el contenido.");
             },
                 complete: function () {
+                    document.getElementById("overlay").style.display = "none";
+                    get_tabla(Etiq_multiple)
             },
         });
     } else {

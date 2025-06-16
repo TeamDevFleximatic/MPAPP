@@ -102,7 +102,7 @@ function mod_multiples() {
 function atras() {
   document.getElementById("overlay").style.display = "flex";
   $.ajax({
-    url: "../../modulos/pages/menu.html",
+    url: "../../modulos/pages/menus.html",
     type: "post",
     data: {},
     success: function (response) {
