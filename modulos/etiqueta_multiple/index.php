@@ -276,56 +276,57 @@ function get_tabla(Etiq_multiple){
                 var datos = {Etiq_multiple:Etiq_multiple};
                 var Json = JSON.stringify(datos);
                 let confirmar = confirm("¿Estas seguro de cerrar esta caja?");
-                $.ajax({
-                    //url: '/MPAPP/proxy.php?url=' + encodeURIComponent('http://192.168.10.139:8086/api/SurtidoMP/SurtidoMP/v1/CrearSolicitudTraslado?Accion=crear_sol_traslado'),
-                    url: 'https://localhost:7191/api/SurtidoMP/SurtidoMP/v1/PICKING_MP?Accion=Cerrar_caja',
-                    //url: 'http://192.168.10.139:8086/api/SurtidoMP/SurtidoMP/v1/CrearSolicitudTraslado?Accion=crear_sol_traslado',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: Json,
-                    success: function(response) {
-                        //debugger 
-                        if (response[0].mensaje == 'OK') {
-                            sonido_success.play();
-                            Command: toastr["success"]("Dirigete a la termina a imprimir la etiqueta!", "#App Surtido");
-                            flag = true
-                           
-                        }else{
-                            sonido_error.play();
-                            Command: toastr["warning"](response[0]?.mensaje || 'Respuesta no válida', 'Mi Fleximatic');
-                        }
-                    },
-                    error: function () {
-                        console.error("Ocurrió un error al cargar el contenido.");
-                    },
-                    complete: function () {
-                        if (flag){
-                           //
-                            $.ajax({
-                                url: "/MPAPP/modulos/etiqueta_multiple/index.php",
-                                type: "post",
-                                data: {},
-                                 beforeSend:function(){
-                                document.getElementById("overlay").style.display = "flex";
-                                },
-                                success: function (response) {
-                                    $("#contenido").html(response);
-                                    //Permisos_menu();
-                                },
-                                    error: function () {
-                                    console.error("Ocurrió un error al cargar el contenido.");
-                                },
-                                complete: function () {
-                                // Se ejecuta tanto si es success como si es error
-                                // Oculta el spinner
-                               document.getElementById("overlay").style.display = "none";
-                                },
-                            });
+                if (confirmar) {
+                    $.ajax({
+                        //url: '/MPAPP/proxy.php?url=' + encodeURIComponent('http://192.168.10.139:8086/api/SurtidoMP/SurtidoMP/v1/CrearSolicitudTraslado?Accion=crear_sol_traslado'),
+                        url: 'https://localhost:7191/api/SurtidoMP/SurtidoMP/v1/PICKING_MP?Accion=Cerrar_caja',
+                        //url: 'http://192.168.10.139:8086/api/SurtidoMP/SurtidoMP/v1/CrearSolicitudTraslado?Accion=crear_sol_traslado',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: Json,
+                        success: function(response) {
+                            //debugger 
+                            if (response[0].mensaje == 'OK') {
+                                sonido_success.play();
+                                Command: toastr["success"]("Dirigete a la termina a imprimir la etiqueta!", "#App Surtido");
+                                flag = true
                             
-                        }
-                    },
-                });
-                
+                            }else{
+                                sonido_error.play();
+                                Command: toastr["warning"](response[0]?.mensaje || 'Respuesta no válida', 'Mi Fleximatic');
+                            }
+                        },
+                        error: function () {
+                            console.error("Ocurrió un error al cargar el contenido.");
+                        },
+                        complete: function () {
+                            if (flag){
+                            //
+                                $.ajax({
+                                    url: "/MPAPP/modulos/etiqueta_multiple/index.php",
+                                    type: "post",
+                                    data: {},
+                                    beforeSend:function(){
+                                    document.getElementById("overlay").style.display = "flex";
+                                    },
+                                    success: function (response) {
+                                        $("#contenido").html(response);
+                                        //Permisos_menu();
+                                    },
+                                        error: function () {
+                                        console.error("Ocurrió un error al cargar el contenido.");
+                                    },
+                                    complete: function () {
+                                    // Se ejecuta tanto si es success como si es error
+                                    // Oculta el spinner
+                                document.getElementById("overlay").style.display = "none";
+                                    },
+                                });
+                                
+                            }
+                        },
+                    });
+                }            
             };
            let contador = document.createElement("p");
             contador.className = "mt-2 fw-bold text-end";
@@ -382,7 +383,7 @@ function eliminar(recno,cantidad,id_etiqueta) {
     } else {
         Command: toastr["warning"]('Cancelaste la Opreación!!');
     }
-  
+      
 }
 
 
